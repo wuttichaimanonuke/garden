@@ -1,6 +1,6 @@
 /*
 Version : 1.0.0.1
-Create branch pre_origin.
+Create branch imp_garden_ai.
 */
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>			//Declare Library screen I2C
