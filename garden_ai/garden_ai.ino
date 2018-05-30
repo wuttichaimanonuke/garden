@@ -9,17 +9,25 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);   //Set the LCD address to 0x27 for a 16 cha
 int sm_s_p = A0;      //Pin of Soil Moisture Sensor (analog)
 int sm_s_ov ;         //Soil Moisture Sensor output value (analog value 0-1023)
 int sm_s_ov_temp;
-int re_p = 6;         //Pin of Relay Module (digital)
+int re_a_p = 6;         //Pin of Relay Module (digital)
 int sm_chk = 50;      //Condition check percentage moisture value
+
+int led_pin_pw = 13;
+int lcd_pin_pw = 12;
+int soil_pin_pw = 11;
 
 void setup(){
   Serial.begin(9600);
   
-  pinMode(13, OUTPUT);
-  digitalWrite(13, HIGH);
+  pinMode(led_pin_pw, OUTPUT);      //LED
+  digitalWrite(led_pin_pw, HIGH);
+  pinMode(lcd_pin_pw, OUTPUT);      //LCD
+  digitalWrite(lcd_pin_pw, HIGH);
+  pinMode(soil_pin_pw, OUTPUT);     //Soil
+  digitalWrite(soil_pin_pw, HIGH);
   
-  pinMode(re_p, OUTPUT);    //Set Pin connected to Relay as an OUTPUT
-  digitalWrite(re_p, LOW);  //Set Pin to LOW to turn Relay OFF
+  pinMode(re_a_p, OUTPUT);    //Set Pin connected to Relay as an OUTPUT
+  digitalWrite(re_a_p, LOW);  //Set Pin to LOW to turn Relay OFF
   
   lcd.begin();                    // initialize the LCD
   lcd.setCursor(3, 0);
@@ -54,12 +62,12 @@ void loop(){
       Open Solenoid Valve 
       */
       lcd.backlight();
-      digitalWrite(re_p, HIGH);   //Turn Relay ON. Valve ON.
+      digitalWrite(re_a_p, HIGH);   //Turn Relay ON. Valve ON.
       lcd.setCursor(11, 1);
       lcd.print("ON");
       Serial.println("Relay is ON. Solenoid Valve is ON.");
     } else {
-      digitalWrite(re_p, LOW);        //Turn Relay OFF. Valve OFF.
+      digitalWrite(re_a_p, LOW);        //Turn Relay OFF. Valve OFF.
       lcd.setCursor(11, 1);
       lcd.print("OFF");
       Serial.println("Relay is OFF. Solenoid Valve is OFF.");
