@@ -9,19 +9,26 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);   //Set the LCD address to 0x27 for a 16 cha
 int sm_s_p = A0;      //Pin of Soil Moisture Sensor (analog)
 int sm_s_ov ;         //Soil Moisture Sensor output value (analog value 0-1023)
 int sm_s_ov_temp;
-int re_p = 8;         //Pin of Relay Module (digital)
+int re_p = 6;         //Pin of Relay Module (digital)
 int sm_chk = 50;      //Condition check percentage moisture value
 
 void setup(){
   Serial.begin(9600);
+  
+  pinMode(13, OUTPUT);
+  digitalWrite(13, HIGH);
+  
   pinMode(re_p, OUTPUT);    //Set Pin connected to Relay as an OUTPUT
   digitalWrite(re_p, LOW);  //Set Pin to LOW to turn Relay OFF
   
   lcd.begin();                    // initialize the LCD
+  lcd.setCursor(3, 0);
+  lcd.print("V 1.0.0.1");
+  lcd.setCursor(0, 1);
   lcd.print("Initialize LCD");
   
   Serial.println("Reading From the Sensor ...");
-  delay(5000);
+  delay(3000);
 }
 
 void loop(){
@@ -57,9 +64,9 @@ void loop(){
       lcd.print("OFF");
       Serial.println("Relay is OFF. Solenoid Valve is OFF.");
     }
-    delay(5000);
+    delay(3000);
   } while (sm_s_ov <= sm_chk);
   lcd.noBacklight();
   Serial.println("Exit Do While Loop.");
-  delay(10000);
+  delay(5000);
 }
