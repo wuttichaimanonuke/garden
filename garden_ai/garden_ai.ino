@@ -22,7 +22,8 @@
 RTC_DS3231 RTC;
 LiquidCrystal_I2C lcd(0x27, 16, 2);   //Set the LCD address to 0x27 for a 16 chars and 2 line display
 
-int re_a_p = 6;       //Pin of Relay Module (digital)
+int re_a_p1 = 4;       //Pin of Relay Module (digital)
+int re_a_p2 = 3;       //Pin of Relay Module (digital)
 int led_pin_pw = 7;
 int lcd_pin_pw = 8;
 int soil_pin_pw = 9;
@@ -52,8 +53,10 @@ void setup() {
   pinMode(rtc_pin_pw, OUTPUT);     //RTC
   digitalWrite(rtc_pin_pw, HIGH);
 
-  pinMode(re_a_p, OUTPUT);    //Set Pin connected to Relay as an OUTPUT
-  digitalWrite(re_a_p, LOW);  //Set Pin to LOW to turn Relay OFF
+  pinMode(re_a_p1, OUTPUT);    //Set Pin connected to Relay as an OUTPUT
+  digitalWrite(re_a_p1, LOW);  //Set Pin to LOW to turn Relay OFF
+  pinMode(re_a_p2, OUTPUT);    //Set Pin connected to Relay as an OUTPUT
+  digitalWrite(re_a_p2, LOW);  //Set Pin to LOW to turn Relay OFF
 
   Wire.begin();
   RTC.begin();
@@ -120,14 +123,14 @@ void loop() {
       Open Solenoid Valve
     */
     lcd.backlight();
-    digitalWrite(re_a_p, HIGH);   //Turn Relay ON. Valve ON.
+    digitalWrite(re_a_p1, HIGH);   //Turn Relay ON. Valve ON.
     lcd.setCursor(11, 1);
     lcd.print("ON");
     str_temp += " , ";
     str_temp += "ON";
     Serial.println("Relay is ON. Solenoid Valve is ON.");
   } else {
-    digitalWrite(re_a_p, LOW);        //Turn Relay OFF. Valve OFF.
+    digitalWrite(re_a_p1, LOW);        //Turn Relay OFF. Valve OFF.
     lcd.setCursor(11, 1);
     lcd.print("OFF");
     str_temp += " , ";
