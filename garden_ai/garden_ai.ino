@@ -84,8 +84,8 @@ void loop() {
   char _str_temp[40] = "";
   int _sm_chk[] = {50, 50};//Condition check percentage moisture value
   int _valve_status[] = {0, 0};
-  int sm_s_ov ;         //Soil Moisture Sensor output value (analog value 0-1023)
-  int sm_s_ov_temp;
+  int sm_s_ov = 0 ;         //Soil Moisture Sensor output value (analog value 0-1023)
+  int sm_s_ov_temp = 0;
 
   DateTime now = RTC.now();
   _str_temp[0] = (now.year() / 1000) % 10 + '0'; //To get 1st digit from year()
@@ -118,9 +118,11 @@ void loop() {
 
   int i;
   for (i = 0 ; i < (sizeof(_pin_soil_data) / sizeof(int)) ; i++) {
+    sm_s_ov = 0;
+    sm_s_ov_temp = 0;
     sm_s_ov = analogRead(_pin_soil_data[i]);       //Get value from Soil Moisture Sensor
     sm_s_ov_temp = sm_s_ov;
-    sm_s_ov = map(sm_s_ov, 1023, 200, 0, 100); //Map Moisture value to percentage, 550(550-1023) = 0%(dry soil) and 0 = 100%(moisture soil)
+    sm_s_ov = map(sm_s_ov, 1023, 300, 0, 100); //Map Moisture value to percentage, 550(550-1023) = 0%(dry soil) and 0 = 100%(moisture soil)
     _str_temp[19] = ',';
     _str_temp[20] = (sm_s_ov_temp / 1000) % 10 + '0';
     _str_temp[21] = (sm_s_ov_temp / 100) % 10 + '0';
@@ -147,15 +149,31 @@ void loop() {
     } else {
       lcd.setCursor(12, 1);
     }
-    if (sm_s_ov < _sm_chk[i]) {
-      digitalWrite(_re_a_pin[i], HIGH);
-      lcd.print("ON");
-      _valve_status[i] = 1;
-      _str_temp[27] = ',';
-      _str_temp[28] = ' ';
-      _str_temp[29] = 'O';
-      _str_temp[30] = 'N';
-      Serial.println(i + " : Relay is ON. Solenoid Valve is ON.");
+
+    if (sm_s_ov_temp > 0) { //Protect valve is over working when soile senser is died.
+      if (sm_s_ov < _sm_chk[i]) {
+        digitalWrite(_re_a_pin[i], HIGH);
+        lcd.print("ON");
+        Serial.println(i);
+        _valve_status[i] = 1;
+        Serial.println(_valve_status[i]);
+        _str_temp[27] = ',';
+        _str_temp[28] = ' ';
+        _str_temp[29] = 'O';
+        _str_temp[30] = 'N';
+        Serial.println(String(i) + " : Relay is ON. Solenoid Valve is ON.");
+      } else {
+        digitalWrite(_re_a_pin[i], LOW);
+        lcd.print("OFF");
+        Serial.println(i);
+        _valve_status[i] = 0;
+        Serial.println(_valve_status[i]);
+        _str_temp[27] = ',';
+        _str_temp[28] = 'O';
+        _str_temp[29] = 'F';
+        _str_temp[30] = 'F';
+        Serial.println(String(i) + " : Relay is OFF. Solenoid Valve is OFF.");
+      }
     } else {
       digitalWrite(_re_a_pin[i], LOW);
       lcd.print("OFF");
@@ -166,7 +184,6 @@ void loop() {
       _str_temp[30] = 'F';
       Serial.println(i + " : Relay is OFF. Solenoid Valve is OFF.");
     }
-
     _str_temp[31] = ',';
     _str_temp[32] = (i + 1) / 10 + '0';
     _str_temp[33] = (i + 1) % 10 + '0';
@@ -202,15 +219,18 @@ void loop() {
       }
     }
   }
-  for (i = 0; i < (sizeof(_valve_status)/sizeof(int)); i++) {
+
+  for (i = 0; i < (sizeof(_valve_status) / sizeof(int)); i++) {
+    Serial.println("v " + String(i) + " = " + String(_valve_status[i]));
     if (_valve_status[i] == 1) {
       lcd.backlight();
       break;
-    }
-    if (i == (sizeof(_valve_status) - 1)) {
-      lcd.noBacklight();
+    } else {
+      if (i == ((sizeof(_valve_status) / sizeof(int)) - 1)) {
+        lcd.noBacklight();
+      }
     }
   }
-  Serial.println("Delay 5 sec.");
-  delay(5000);
+  Serial.println("Delay 3 min (180 sec).");
+  delay(180000);
 }
